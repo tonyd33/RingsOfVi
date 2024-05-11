@@ -1,47 +1,50 @@
 #include "pch.h"
-#include "hook.h"
+#include "game.h"
 #include "action_hooks.h"
 #include <iostream>
 
-int ActionHooks::currIndex = 0;
+static int currIndex = 0;
 
-/* this is what first intercepts a hooked function. it then wraps the
-   action with our CAction and then uses currTarget, which is set from
-   the hook mechanism to execute the list of callbacks. it has to be */
+ActionHooks& ActionHooks::Instance() {
+    static ActionHooks instance;
+    return instance;
+}
+
+void* ActionHooks::GetParamStorage() {
+    return (void*)&currIndex;
+}
+
 void __cdecl ActionHooks::HandleActionHook(Action* action) {
-	ActionHooks ahs = ActionHooks::Instance();
+    ActionHooks& ahs = ActionHooks::Instance();
+    HookGroup::TargHookInfo* targetInfo = ahs.GWGetTargHookInfo();
 
-	std::cout << "0x" << std::hex << action << " ahs addr " << &ahs << std::endl;
+    CAction cAction = CAction(action);
 
-	//ActionHooks ahs = ActionHooks::Instance();
+    int i;
+    bool shouldContinue;
+    HookGroup::CbInfo cbInfo;
 
-	//ActionTarget target = ahs.targets[ahs.currIndex];
-	//ActionTargetInfo* targetInfo = ahs.targetToInfo[target];
+    for (i = 0; i < targetInfo->callbacks.size(); i++) {
+        cbInfo = targetInfo->callbacks[i];
+        if (cbInfo.when == FUNC_PRE) {
+            shouldContinue = cbInfo.callback(&cAction);
+            if (!shouldContinue) return;
+        }
+    }
 
-	//CAction cAction = CAction(action);
+    targetInfo->trueFunc(action);
 
-	//int i;
-	//bool shouldContinue;
+    for (i = 0; i < targetInfo->callbacks.size(); i++) {
+        cbInfo = targetInfo->callbacks[i];
+        if (cbInfo.when == FUNC_POST) {
+            shouldContinue = cbInfo.callback(&cAction);
+            if (!shouldContinue) return;
+        }
+    }
+}
 
-	//ActionCallbackInfo cbInfo;
-
-	//for (i = 0; i < targetInfo->callbacks.size(); i++) {
-	//	cbInfo = targetInfo->callbacks[i];
-	//	if (cbInfo.when == HOOK_PRE) {
-	//		shouldContinue = cbInfo.callback(&cAction);
-	//		if (!shouldContinue) return;
-	//	}
-	//}
-
-	//targetInfo->trueFunc(action);
-
-	//for (i = 0; i < targetInfo->callbacks.size(); i++) {
-	//	cbInfo = targetInfo->callbacks[i];
-	//	if (cbInfo.when == HOOK_POST) {
-	//		shouldContinue = cbInfo.callback(&cAction);
-	//		if (!shouldContinue) return;
-	//	}
-	//}
+OrigActionFunc ActionHooks::GetGateway() {
+    return HandleActionHook;
 }
 
 //ActionHooks& ActionHooks::Instance() {
@@ -49,108 +52,106 @@ void __cdecl ActionHooks::HandleActionHook(Action* action) {
 //	return instance;
 //}
 
-void ActionHooks::InitHookAddrs() {
-	//LoadPlayersTable();
-	//LoadActivesTable();
-	LoadExtsTable();
+void ActionHooks::LoadHookAddrs() {
+    LoadExtsTable();
 
-	for (int i = 0; i < targets.size(); i++) {
-		ActionTarget name = targets[i];
-		uintptr_t addr = targetAddrs[i];
+    //for (int i = 0; i < targets.size(); i++) {
+    //	ActionTarget name = targets[i];
+    //	uintptr_t addr = targetAddrs[i];
 
-		ActionTargetInfo* targetInfo = new ActionTargetInfo();
-		targetInfo->hook->SetHook((uintptr_t)HandleActionHook);
-		targetInfo->hook->SetTarget(addr);
-		targetInfo->hook->SetExtraIn((void*)i, (void*)&ActionHooks::currIndex, false);
-		targetInfo->hook->Initialize((uintptr_t*)&targetInfo->trueFunc);
-		targetToInfo[name] = targetInfo;
-	}
+    //	ActionTargetInfo* targetInfo = new ActionTargetInfo();
+    //	targetInfo->hook->SetHook((uintptr_t)HandleActionHook);
+    //	targetInfo->hook->SetTarget(addr);
+    //	targetInfo->hook->SetExtraIn((void*)i, (void*)&ActionHooks::currIndex, false);
+    //	targetInfo->hook->Initialize((uintptr_t*)&targetInfo->trueFunc);
+    //	targetToInfo[name] = targetInfo;
+    //}
 
-	std::cout << std::hex << targetToInfo["SetX"]->trueFunc << std::dec << std::endl;
-	return;
+    //std::cout << std::hex << targetToInfo["SetX"]->trueFunc << std::dec << std::endl;
+    //return;
 }
 
 void ActionHooks::LoadExtsTable() {
-	uintptr_t* table = (uintptr_t*)(Hook::modBaseAddr + 0xb0008);
-	targets.push_back("SetPosition"); targetAddrs.push_back(table[1]);
-	targets.push_back("SetX"); targetAddrs.push_back(table[2]);
-	targets.push_back("SetY"); targetAddrs.push_back(table[3]);
-	targets.push_back("Stop"); targetAddrs.push_back(table[4]);
-	targets.push_back("Start"); targetAddrs.push_back(table[5]);
-	targets.push_back("SetSpeed"); targetAddrs.push_back(table[6]);
-	targets.push_back("SetMaximumSpeed"); targetAddrs.push_back(table[7]);
-	targets.push_back("Wrap"); targetAddrs.push_back(table[8]);
-	targets.push_back("Bounce"); targetAddrs.push_back(table[9]);
-	targets.push_back("Reverse"); targetAddrs.push_back(table[10]);
-	targets.push_back("NextMovement"); targetAddrs.push_back(table[11]);
-	targets.push_back("PreviousMovement"); targetAddrs.push_back(table[12]);
-	targets.push_back("SelectMovement"); targetAddrs.push_back(table[13]);
-	targets.push_back("LookAt"); targetAddrs.push_back(table[14]);
-	targets.push_back("StopAnimation"); targetAddrs.push_back(table[15]);
-	targets.push_back("StartAnimation"); targetAddrs.push_back(table[16]);
-	targets.push_back("ForceAnimation"); targetAddrs.push_back(table[17]);
-	targets.push_back("ForceDirection"); targetAddrs.push_back(table[18]);
-	targets.push_back("ForceSpeed"); targetAddrs.push_back(table[19]);
-	targets.push_back("RestoreAnimation"); targetAddrs.push_back(table[20]);
-	targets.push_back("RestoreDirection"); targetAddrs.push_back(table[21]);
-	targets.push_back("RestoreSpeed"); targetAddrs.push_back(table[22]);
-	targets.push_back("SetDirection"); targetAddrs.push_back(table[23]);
-	targets.push_back("Destroy"); targetAddrs.push_back(table[24]);
-	targets.push_back("SwapPosition"); targetAddrs.push_back(table[25]);
-	targets.push_back("Hide"); targetAddrs.push_back(table[26]);
-	targets.push_back("Show"); targetAddrs.push_back(table[27]);
-	targets.push_back("FlashDuring"); targetAddrs.push_back(table[28]);
-	targets.push_back("Shoot"); targetAddrs.push_back(table[29]);
-	targets.push_back("ShootToward"); targetAddrs.push_back(table[30]);
-	targets.push_back("SetAlterableValue"); targetAddrs.push_back(table[31]);
-	targets.push_back("AddToAlterable"); targetAddrs.push_back(table[32]);
-	targets.push_back("SubtractFromAlterable"); targetAddrs.push_back(table[33]);
-	targets.push_back("SpreadValue"); targetAddrs.push_back(table[34]);
-	targets.push_back("EnableFlag"); targetAddrs.push_back(table[35]);
-	targets.push_back("DisableFlag"); targetAddrs.push_back(table[36]);
-	targets.push_back("ToggleFlag"); targetAddrs.push_back(table[37]);
-	targets.push_back("SetInkEffect"); targetAddrs.push_back(table[38]);
-	targets.push_back("SetSemiTransparency"); targetAddrs.push_back(table[39]);
-	targets.push_back("ForceFrame"); targetAddrs.push_back(table[40]);
-	targets.push_back("RestoreFrame"); targetAddrs.push_back(table[41]);
-	targets.push_back("SetAcceleration"); targetAddrs.push_back(table[42]);
-	targets.push_back("SetDeceleration"); targetAddrs.push_back(table[43]);
-	targets.push_back("SetRotatingSpeed"); targetAddrs.push_back(table[44]);
-	targets.push_back("SetDirections"); targetAddrs.push_back(table[45]);
-	targets.push_back("BranchNode"); targetAddrs.push_back(table[46]);
-	targets.push_back("SetGravity"); targetAddrs.push_back(table[47]);
-	targets.push_back("GoToNode"); targetAddrs.push_back(table[48]);
-	targets.push_back("SetAlterableString"); targetAddrs.push_back(table[49]);
-	targets.push_back("SetFontName"); targetAddrs.push_back(table[50]);
-	targets.push_back("SetFontSize"); targetAddrs.push_back(table[51]);
-	targets.push_back("SetBold"); targetAddrs.push_back(table[52]);
-	targets.push_back("SetItalic"); targetAddrs.push_back(table[53]);
-	targets.push_back("SetUnderline"); targetAddrs.push_back(table[54]);
-	targets.push_back("SetStrikeOut"); targetAddrs.push_back(table[55]);
-	targets.push_back("SetTextColor"); targetAddrs.push_back(table[56]);
-	targets.push_back("BringToFront"); targetAddrs.push_back(table[57]);
-	targets.push_back("BringToBack"); targetAddrs.push_back(table[58]);
-	targets.push_back("MoveBehind"); targetAddrs.push_back(table[59]);
-	targets.push_back("MoveInFront"); targetAddrs.push_back(table[60]);
-	targets.push_back("MoveToLayer"); targetAddrs.push_back(table[61]);
-	targets.push_back("AddToDebugger"); targetAddrs.push_back(table[62]);
-	targets.push_back("SetEffect"); targetAddrs.push_back(table[63]);
-	targets.push_back("SetEffectParameter"); targetAddrs.push_back(table[64]);
-	targets.push_back("SetAlphaCoefficient"); targetAddrs.push_back(table[65]);
-	targets.push_back("SetRGBCoefficient"); targetAddrs.push_back(table[66]);
-	targets.push_back("SetEffectImage"); targetAddrs.push_back(table[67]);
-	targets.push_back("SetFriction"); targetAddrs.push_back(table[68]);
-	targets.push_back("SetElasticity"); targetAddrs.push_back(table[69]);
-	targets.push_back("ApplyImpulse"); targetAddrs.push_back(table[70]);
-	targets.push_back("ApplyAngularImpulse"); targetAddrs.push_back(table[71]);
-	targets.push_back("ApplyForce"); targetAddrs.push_back(table[72]);
-	targets.push_back("ApplyTorque"); targetAddrs.push_back(table[73]);
-	targets.push_back("SetLinearVelocity"); targetAddrs.push_back(table[74]);
-	targets.push_back("SetAngularVelocity"); targetAddrs.push_back(table[75]);
-	targets.push_back("Foreach"); targetAddrs.push_back(table[76]);
-	targets.push_back("ForeachTwoObjects"); targetAddrs.push_back(table[77]);
-	targets.push_back("StopForce"); targetAddrs.push_back(table[78]);
-	targets.push_back("StopTorque"); targetAddrs.push_back(table[79]);
-	targets.push_back("SetDensity"); targetAddrs.push_back(table[80]);
-	targets.push_back("SetGravityScale"); targetAddrs.push_back(table[81]);
+    uintptr_t* table = (uintptr_t*)(Game::modBaseAddr + 0xb0008);
+    AddTarget("SetPosition", table[1]);
+    AddTarget("SetX", table[2]);
+    AddTarget("SetY", table[3]);
+    AddTarget("Stop", table[4]);
+    AddTarget("Start", table[5]);
+    AddTarget("SetSpeed", table[6]);
+    AddTarget("SetMaximumSpeed", table[7]);
+    AddTarget("Wrap", table[8]);
+    AddTarget("Bounce", table[9]);
+    AddTarget("Reverse", table[10]);
+    AddTarget("NextMovement", table[11]);
+    AddTarget("PreviousMovement", table[12]);
+    AddTarget("SelectMovement", table[13]);
+    AddTarget("LookAt", table[14]);
+    AddTarget("StopAnimation", table[15]);
+    AddTarget("StartAnimation", table[16]);
+    AddTarget("ForceAnimation", table[17]);
+    AddTarget("ForceDirection", table[18]);
+    AddTarget("ForceSpeed", table[19]);
+    AddTarget("RestoreAnimation", table[20]);
+    AddTarget("RestoreDirection", table[21]);
+    AddTarget("RestoreSpeed", table[22]);
+    AddTarget("SetDirection", table[23]);
+    AddTarget("Destroy", table[24]);
+    AddTarget("SwapPosition", table[25]);
+    AddTarget("Hide", table[26]);
+    AddTarget("Show", table[27]);
+    AddTarget("FlashDuring", table[28]);
+    AddTarget("Shoot", table[29]);
+    AddTarget("ShootToward", table[30]);
+    AddTarget("SetAlterableValue", table[31]);
+    AddTarget("AddToAlterable", table[32]);
+    AddTarget("SubtractFromAlterable", table[33]);
+    AddTarget("SpreadValue", table[34]);
+    AddTarget("EnableFlag", table[35]);
+    AddTarget("DisableFlag", table[36]);
+    AddTarget("ToggleFlag", table[37]);
+    AddTarget("SetInkEffect", table[38]);
+    AddTarget("SetSemiTransparency", table[39]);
+    AddTarget("ForceFrame", table[40]);
+    AddTarget("RestoreFrame", table[41]);
+    AddTarget("SetAcceleration", table[42]);
+    AddTarget("SetDeceleration", table[43]);
+    AddTarget("SetRotatingSpeed", table[44]);
+    AddTarget("SetDirections", table[45]);
+    AddTarget("BranchNode", table[46]);
+    AddTarget("SetGravity", table[47]);
+    AddTarget("GoToNode", table[48]);
+    AddTarget("SetAlterableString", table[49]);
+    AddTarget("SetFontName", table[50]);
+    AddTarget("SetFontSize", table[51]);
+    AddTarget("SetBold", table[52]);
+    AddTarget("SetItalic", table[53]);
+    AddTarget("SetUnderline", table[54]);
+    AddTarget("SetStrikeOut", table[55]);
+    AddTarget("SetTextColor", table[56]);
+    AddTarget("BringToFront", table[57]);
+    AddTarget("BringToBack", table[58]);
+    AddTarget("MoveBehind", table[59]);
+    AddTarget("MoveInFront", table[60]);
+    AddTarget("MoveToLayer", table[61]);
+    AddTarget("AddToDebugger", table[62]);
+    AddTarget("SetEffect", table[63]);
+    AddTarget("SetEffectParameter", table[64]);
+    AddTarget("SetAlphaCoefficient", table[65]);
+    AddTarget("SetRGBCoefficient", table[66]);
+    AddTarget("SetEffectImage", table[67]);
+    AddTarget("SetFriction", table[68]);
+    AddTarget("SetElasticity", table[69]);
+    AddTarget("ApplyImpulse", table[70]);
+    AddTarget("ApplyAngularImpulse", table[71]);
+    AddTarget("ApplyForce", table[72]);
+    AddTarget("ApplyTorque", table[73]);
+    AddTarget("SetLinearVelocity", table[74]);
+    AddTarget("SetAngularVelocity", table[75]);
+    AddTarget("Foreach", table[76]);
+    AddTarget("ForeachTwoObjects", table[77]);
+    AddTarget("StopForce", table[78]);
+    AddTarget("StopTorque", table[79]);
+    AddTarget("SetDensity", table[80]);
+    AddTarget("SetGravityScale", table[81]);
 }

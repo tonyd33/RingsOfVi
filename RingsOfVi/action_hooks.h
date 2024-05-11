@@ -6,18 +6,16 @@
 
 typedef std::string ActionTarget;
 typedef bool(__cdecl* ActionCallback)(CAction*);
-typedef bool(__cdecl* OrigActionFunc)(Action*);
-
-typedef TargHookInfo<ActionCallback, ActionTarget, OrigActionFunc> ActionTargetInfo;
-typedef CbInfo<ActionCallback, ActionTarget> ActionCallbackInfo;
+typedef void(__cdecl* OrigActionFunc)(Action*);
 
 class ActionHooks : public HookGroup<ActionCallback, ActionTarget, OrigActionFunc> {
 private:
-	void LoadExtsTable();
+    void LoadExtsTable();
 protected:
-	static int currIndex;
-	 void InitHookAddrs() override;
+    OrigActionFunc GetGateway() override;
+    void LoadHookAddrs() override;
+    void* GetParamStorage() override;
 public:
-	static ActionHooks& Instance();
-	static void __cdecl HandleActionHook(Action* action);
+    static ActionHooks& Instance();
+    static void __cdecl HandleActionHook(Action* action);
 };

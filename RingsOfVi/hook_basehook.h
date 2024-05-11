@@ -1,10 +1,9 @@
 #pragma once
 #include <Windows.h>
 #include <vector>
-#include "hook.h"
 
-namespace Hook {
-    class BaseHook {
+namespace Memory {
+    class Hook {
     public:
         uintptr_t target = NULL;
         uintptr_t hook = NULL;
@@ -16,7 +15,7 @@ namespace Hook {
         BOOL hooked = false;
         BOOL initialized = false;
 
-        ~BaseHook();
+        ~Hook();
 
         BOOL SetTarget(uintptr_t target);
         BOOL SetHook(uintptr_t hook);
@@ -35,10 +34,10 @@ namespace Hook {
 
         /* returns whether hook was successful. Initialize must be called
            before this. */
-        BOOL DoHook();
+        BOOL Enable();
 
         /* returns whether undoing hook was successful */
-        BOOL UndoHook();
+        BOOL Disable();
 
     private:
         /* how many bytes did we overwrite */

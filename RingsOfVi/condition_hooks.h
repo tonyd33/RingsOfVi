@@ -10,9 +10,11 @@ typedef bool(__cdecl* OrigConditionFunc)(Condition*, RunObject*);
 
 class ConditionHooks : public HookGroup<ConditionCallback, ConditionTarget, OrigConditionFunc> {
 protected:
-	 void InitHookAddrs() override;
+    OrigConditionFunc GetGateway() override;
+    void LoadHookAddrs() override;
+    void* GetParamStorage() override;
 
 public:
-
-	static ConditionHooks& Instance();
+    static ConditionHooks& Instance();
+    static bool __cdecl HandleConditionHook(Condition* condition, RunObject* ro);
 };

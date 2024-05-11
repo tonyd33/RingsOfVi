@@ -1,6 +1,5 @@
 #include "pch.h"
 #include <cstdlib>
-#include "hook.h"
 #include "hook_basehook.h"
 #include "lend.h"
 #include <vector>
@@ -8,7 +7,7 @@
 
 #define MIN_OVERWRITE_SIZE 5 // jmp [relative address] is at least 5 bytes
 
-namespace Hook {
+namespace Memory {
     /* helper class for adding assembly instructions easily. allows for a file-like interface for pushing bytes
        into the stream. */
     class ByteStream {
@@ -47,21 +46,21 @@ namespace Hook {
         }
     };
 
-    BaseHook::~BaseHook() { }
+    Hook::~Hook() { }
 
-    BOOL BaseHook::SetTarget(uintptr_t target) {
+    BOOL Hook::SetTarget(uintptr_t target) {
         if (hooked) return false;
         this->target = target;
         initialized = false;
     }
 
-    BOOL BaseHook::SetHook(uintptr_t hook) {
+    BOOL Hook::SetHook(uintptr_t hook) {
         if (hooked) return false;
         this->hook = hook;
         initialized = false;
     }
 
-    void BaseHook::SetExtraIn(
+    void Hook::SetExtraIn(
         void* extraIn,
         void* extraInStorage,
         BOOL extraInIsPtr
@@ -72,7 +71,7 @@ namespace Hook {
         this->extraInIsPtr = extraInIsPtr;
     }
 
-    BOOL BaseHook::Initialize(uintptr_t* out) {
+    BOOL Hook::Initialize(uintptr_t* out) {
         if (target == NULL || hook == NULL) return false;
         if (initialized) return true;
         // TODO: handle error codes and better way of not mangling instruction
@@ -145,7 +144,7 @@ namespace Hook {
         return true;
     }
 
-    BOOL BaseHook::DoHook() {
+    BOOL Hook::Enable() {
         if (!initialized) return false;
         if (this->hooked) return true;
 
@@ -173,7 +172,7 @@ namespace Hook {
         return true;
     }
 
-    BOOL BaseHook::UndoHook(){
+    BOOL Hook::Disable(){
         if (this->hooked == false) return false;
 
         // TODO: return false on errors

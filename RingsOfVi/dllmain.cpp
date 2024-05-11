@@ -1,28 +1,26 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
 #include <iostream>
-#include "hook.h"
+#include "game.h"
 #include "hook_basehook.h"
 #include "wrapped_types.h"
 #include "action_hooks.h"
 
 bool DoSomething(CAction* action) {
-    std::cout << "hooked\n";
-    return true;
     //bool isViInObj = 21 <= action->action->objectInfoList && action->action->objectInfoList <= 106;
 
-    //std::vector<Parameter*> params;
-    //action->GetParams(&params);
+   // std::vector<Parameter*> params;
+   // action->GetParams(&params);
 
    // for (int i = 0; i < params.size(); i++) {
    //     Parameter* param = params[i];
    //     if (param->evpCode == 22) {
-			//// short size
-			//// short code
-			//// short comparison
-			//// short objectType
-			//// short num
-			//Expression* expr = (Expression*)((uintptr_t)param + 6);
+            //// short size
+            //// short code
+            //// short comparison
+            //// short objectType
+            //// short num
+            //Expression* expr = (Expression*)((uintptr_t)param + 6);
    //         while (expr->type != 0 || expr->num != 0) {
    //             // system
    //             //std::cout << " type " << expr->type << " num " << expr->num;
@@ -30,9 +28,9 @@ bool DoSomething(CAction* action) {
    //             if (expr->type == -1) return true;
    //             if (expr->type == 2 || expr->type == -7) {
    //                 unsigned short oi = *(unsigned short*)((uintptr_t)expr + 4);
-			//		unsigned short oiList = *(unsigned short*)((uintptr_t)expr + 6);
-			//		unsigned short value = *(unsigned short*)((uintptr_t)expr + 8);
-			//		unsigned short otherValue = *(unsigned short*)((uintptr_t)expr + 0xa);
+            //		unsigned short oiList = *(unsigned short*)((uintptr_t)expr + 6);
+            //		unsigned short value = *(unsigned short*)((uintptr_t)expr + 8);
+            //		unsigned short otherValue = *(unsigned short*)((uintptr_t)expr + 0xa);
    //                 if (expr->type == 2 && expr->num == 16) {
    //                     //std::cout << " value " << value << std::endl;
    //                     if (21 <= value && value <= 106) return true;
@@ -42,8 +40,8 @@ bool DoSomething(CAction* action) {
    //         }
    //     }
    // }
-    //std::cout << std::endl;
-    //return isViInObj;
+    // std::cout << std::endl;
+    return true;
 }
 
 void ModThread(HMODULE hModule) {
@@ -53,19 +51,19 @@ void ModThread(HMODULE hModule) {
     std::cout << "Attached\n";
 
     uintptr_t modBaseAddr = (uintptr_t)GetModuleHandle(L"Wings Of Vi.exe");
-    ActionCallbackInfo cb;
-    cb.callback = DoSomething;
-    cb.when = FUNC_PRE;
+    //ActionCallbackInfo cb;
+    //cb.callback = DoSomething;
+    //cb.when = FUNC_PRE;
 
-    Hook::Initialize(modBaseAddr);
-    ActionHooks actHooks = ActionHooks::Instance();
-    actHooks.Initialize();
+    Game::Initialize(modBaseAddr);
+    ActionHooks& actHooks = ActionHooks::Instance();
+    actHooks.PrepareHooks();
     //Hook::Actions::Initialize();
 
 
 
     CbID tmp;
-    actHooks.Register("SetX", DoSomething, FUNC_PRE, &tmp);
+    actHooks.Subscribe("SetX", DoSomething, FUNC_PRE, &tmp);
     //Hook::Actions::Register(&cb, "SetX");
     //Hook::Actions::Register(&cb, "SetY");
     //Hook::Actions::Register(&cb, "SetSpeed");
@@ -85,7 +83,7 @@ void ModThread(HMODULE hModule) {
             actHooks.ToggleHook("SetX");
         }
         if (GetAsyncKeyState(VK_INSERT) & 1) {
-            std::cout << "curr index addr: 0x" << std::hex << &actHooks;
+            // std::cout << ActionHooks::Instance().targets.size() << std::endl;
         }
 
         Sleep(10);

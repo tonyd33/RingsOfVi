@@ -142,9 +142,8 @@
   <ItemGroup>
     <ClInclude Include="action_hooks.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="hookgroup.h" />
-    <ClInclude Include="hook.h" />
-    <ClInclude Include="hook_actions.h" />
     <ClInclude Include="hook_basehook.h" />
     <ClInclude Include="condition_hooks.h" />
     <ClInclude Include="lend.h" />
@@ -156,7 +155,6 @@
     <ClCompile Include="action_hooks.cpp" />
     <ClCompile Include="condition_hooks.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="hook.cpp" />
     <ClCompile Include="hook_actions.cpp" />
     <ClCompile Include="hook_basehook.cpp" />
     <ClCompile Include="lend.cpp">
@@ -169,6 +167,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="wrapped_types.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
