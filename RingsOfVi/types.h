@@ -1,9 +1,8 @@
 #pragma once
 #include <Windows.h>
 
+#pragma pack(push, 1)
 typedef unsigned char   undefined;
-
-typedef unsigned long long    GUID;
 
 typedef unsigned char    byte;
 typedef unsigned int    dword;
@@ -26,28 +25,21 @@ typedef struct tagRECT RECT;
 
 typedef long LONG;
 
-struct tagRECT {
-    LONG left;
-    LONG top;
-    LONG right;
-    LONG bottom;
-};
-
 typedef wchar_t WCHAR;
 
 typedef WCHAR* LPWSTR;
 
 typedef struct Action Action, * PAction;
 
-typedef enum EVFlags {
-    EVFLAGS_REPEAT = 1,
-    EVFLAGS_DONE = 2,
-    EVFLAGS_DEFAULT = 4,
-    EVFLAGS_DONEBEFOREFADEIN = 8,
-    EVFLAGS_NOTDONEINSTART = 16,
-    EVFLAGS_ALWAYS = 32,
-    EVFLAGS_BAD = 64,
-    EVFLAGS_BADOBJECT = 128
+typedef enum EVFlags : unsigned char {
+    EVFLAGS_REPEAT=1,
+    EVFLAGS_DONE=2,
+    EVFLAGS_DEFAULT=4,
+    EVFLAGS_DONEBEFOREFADEIN=8,
+    EVFLAGS_NOTDONEINSTART=16,
+    EVFLAGS_ALWAYS=32,
+    EVFLAGS_BAD=64,
+    EVFLAGS_BADOBJECT=128
 } EVFlags;
 
 struct Action {
@@ -58,7 +50,20 @@ struct Action {
     short objectInfoList;
     enum EVFlags flags1;
     char flags2;
-    char numParams;
+    unsigned char numParams;
+    char defaultType;
+};
+static_assert(sizeof(Action) == 0xe, "Mismatching Action size");
+
+struct Condition {
+    short size;
+    short type;
+    short num;
+    short objectInfo;
+    short objectInfoList;
+    enum EVFlags flags1;
+    char flags2;
+    unsigned char numParams;
     char defaultType;
     short id;
 };
@@ -100,7 +105,7 @@ typedef struct CRunMvt CRunMvt, * PCRunMvt;
 
 typedef struct CValue CValue, * PCValue;
 
-typedef enum QuitCode {
+typedef enum QuitCode : short {
     LOOPEXIT_ENDGAME = -2,
     LOOPEXIT_NEXTLEVEL = 1,
     LOOPEXIT_PREVLEVEL = 2,
@@ -8526,4 +8531,4 @@ struct SprObj {
     uint objPrev;
     uint objNext;
 };
-
+#pragma pack(pop)
