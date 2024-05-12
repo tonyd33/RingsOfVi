@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "hook_basehook.h"
+#include "hook.h"
 
 enum HStatus {
     H_OK,

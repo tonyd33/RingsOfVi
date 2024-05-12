@@ -2,45 +2,50 @@
 #include "pch.h"
 #include <iostream>
 #include "game.h"
-#include "hook_basehook.h"
+#include "hook.h"
 #include "wrapped_types.h"
 #include "action_hooks.h"
 
 bool DoSomething(CAction* action) {
-    //bool isViInObj = 21 <= action->action->objectInfoList && action->action->objectInfoList <= 106;
+    std::vector<CParameter> params = action->GetParams();
 
-   // std::vector<Parameter*> params;
-   // action->GetParams(&params);
+    short objectInfo = action->action->objectInfo;
 
-   // for (int i = 0; i < params.size(); i++) {
-   //     Parameter* param = params[i];
-   //     if (param->evpCode == 22) {
-            //// short size
-            //// short code
-            //// short comparison
-            //// short objectType
-            //// short num
-            //Expression* expr = (Expression*)((uintptr_t)param + 6);
-   //         while (expr->type != 0 || expr->num != 0) {
-   //             // system
-   //             //std::cout << " type " << expr->type << " num " << expr->num;
-   //             //std::cout << std::endl;
-   //             if (expr->type == -1) return true;
-   //             if (expr->type == 2 || expr->type == -7) {
-   //                 unsigned short oi = *(unsigned short*)((uintptr_t)expr + 4);
-            //		unsigned short oiList = *(unsigned short*)((uintptr_t)expr + 6);
-            //		unsigned short value = *(unsigned short*)((uintptr_t)expr + 8);
-            //		unsigned short otherValue = *(unsigned short*)((uintptr_t)expr + 0xa);
-   //                 if (expr->type == 2 && expr->num == 16) {
-   //                     //std::cout << " value " << value << std::endl;
-   //                     if (21 <= value && value <= 106) return true;
-   //                 }
-   //             }
-   //             expr = (Expression*)((uintptr_t)expr + expr->size);
-   //         }
-   //     }
-   // }
-    // std::cout << std::endl;
+    if (objectInfo == 378 || // converter
+        objectInfo == 470 || // demon jumper hitbox
+        objectInfo == 471 || // demon jumper sprite
+        objectInfo == 501 || // eye of the wary - eye
+        objectInfo == 502 || // watching eye
+        false // make syntax uniform lmao
+     ) return false;
+
+    return true;
+
+    for (int i = 0; i < params.size(); i++) {
+        CParameter param = params[i];
+        // expression param
+        if (param.param->evpCode != 22) continue;
+
+        CExpressionParameter exprParam = CExpressionParameter((ExpressionParameter*)&param.param->startOfBody);
+
+        std::vector<CExpression> exprs = exprParam.GetExpressions();
+
+        if (exprs.size() < 3) continue;
+        // PLAYXLEFT
+        if (exprs[0].expr->type == -1 && exprs[0].expr->num == 2) continue;
+        std::cout << "oiList: " << action->action->objectInfoList;
+
+        std::cout << " comparison " << exprParam.exprParam->comparison << " Num exprs " << exprs.size() << std::endl;
+        for (int i = 0; i < exprs.size(); i++) {
+            CExpression expr = exprs[i];
+            std::cout << expr.PrettyName() << " ";
+            // std::cout << "type " << expr.expr->type << " num " << expr.expr->num << " size " << expr.expr->size;
+
+        }
+
+        std::cout << std::endl;
+
+    }
     return true;
 }
 
@@ -81,6 +86,7 @@ void ModThread(HMODULE hModule) {
         if (GetAsyncKeyState(VK_DELETE) & 1) break;
         if (GetAsyncKeyState(VK_END) & 1) {
             actHooks.ToggleHook("SetX");
+            std::cout << "Toggled\n";
         }
         if (GetAsyncKeyState(VK_INSERT) & 1) {
             // std::cout << ActionHooks::Instance().targets.size() << std::endl;
@@ -89,6 +95,7 @@ void ModThread(HMODULE hModule) {
         Sleep(10);
     }
 
+    // TODO: Deinit
     //Hook::Actions::Deinitialize();
 
     fclose(f);

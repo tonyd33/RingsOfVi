@@ -27,7 +27,7 @@
     <ClInclude Include="lend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hook_basehook.h">
+    <ClInclude Include="hook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="condition_hooks.h">
@@ -56,10 +56,7 @@
     <ClCompile Include="lend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hook_basehook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="hook_actions.cpp">
+    <ClCompile Include="hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="condition_hooks.cpp">

@@ -144,7 +144,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="hookgroup.h" />
-    <ClInclude Include="hook_basehook.h" />
+    <ClInclude Include="hook.h" />
     <ClInclude Include="condition_hooks.h" />
     <ClInclude Include="lend.h" />
     <ClInclude Include="pch.h" />
@@ -155,8 +155,7 @@
     <ClCompile Include="action_hooks.cpp" />
     <ClCompile Include="condition_hooks.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="hook_actions.cpp" />
-    <ClCompile Include="hook_basehook.cpp" />
+    <ClCompile Include="hook.cpp" />
     <ClCompile Include="lend.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalOptions>

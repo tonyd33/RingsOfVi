@@ -46,8 +46,8 @@ struct Action {
     short size;
     short type;
     short num;
-    short objectInfo;
-    short objectInfoList;
+    short objectInfo; // index into CRunApp->objectInfos
+    short objectInfoList; // index into RunHeader->objectInfoList
     enum EVFlags flags1;
     char flags2;
     unsigned char numParams;
@@ -67,6 +67,7 @@ struct Condition {
     char defaultType;
     short id;
 };
+static_assert(sizeof(Condition) == 0x10, "Mismatching Condition size");
 
 typedef struct CArrayList CArrayList, * PCArrayList;
 
@@ -128,6 +129,9 @@ typedef struct Qualifier Qualifier, * PQualifier;
 typedef struct ObjectsList ObjectsList, * PObjectsList;
 
 typedef struct Expression Expression, * PExpression;
+
+typedef struct ExpressionParameter ExpressionParameter;
+
 
 typedef enum CValueType {
     TYPE_INT = 0,
@@ -5072,17 +5076,19 @@ struct Expression {
 };
 
 struct Parameter {
+    // shared
     short evpSize;
     short evpCode;
-    short field2_0x4;
-    short field3_0x6;
-    short field4_0x8;
-    short field5_0xa;
-    short field6_0xc;
-    short field7_0xe;
-    short field8_0x10;
-    short field9_0x12;
+
+    // depends on code
+    char startOfBody;
 };
+
+struct ExpressionParameter {
+    short comparison;
+    Expression expression;
+};
+
 
 struct Qualifier {
     undefined field0_0x0;

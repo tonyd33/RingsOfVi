@@ -12,7 +12,7 @@ class CAction {
 public:
 	Action* action;
 
-	CAction(Action* action);
+	CAction(Action*);
 	std::vector<CParameter> GetParams();
 };
 
@@ -28,7 +28,7 @@ class CParameter {
 public:
 	Parameter* param;
 
-	CParameter(Parameter* param);
+	CParameter(Parameter*);
 	CParameter Next();
 	std::string Name();
 };
@@ -40,3 +40,23 @@ public:
 
 	CRunObject(RunObject* ro);
 };
+
+class CExpression {
+public:
+	Expression* expr;
+	CExpression(Expression*);
+
+	CExpression Next();
+	bool IsEnd();
+	std::string Name();
+	std::string PrettyName();
+};
+
+class CExpressionParameter {
+public:
+	ExpressionParameter* exprParam;
+	CExpressionParameter(ExpressionParameter*);
+
+	std::vector<CExpression> GetExpressions();
+};
+
