@@ -45,6 +45,9 @@
     <ClInclude Include="game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="general_hooks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -65,10 +68,13 @@
     <ClCompile Include="wrapped_types.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="action_hooks.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="action_hooks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="general_hooks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

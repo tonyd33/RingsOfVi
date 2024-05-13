@@ -19,7 +19,7 @@ bool DoSomething(CAction* action) {
         false // make syntax uniform lmao
      ) return false;
 
-    return true;
+    //return true;
 
     for (int i = 0; i < params.size(); i++) {
         CParameter param = params[i];

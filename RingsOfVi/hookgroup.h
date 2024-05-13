@@ -16,8 +16,8 @@ enum CbWhen {
     FUNC_PRE,
     FUNC_POST
 };
-typedef unsigned int CbID;
 
+typedef unsigned int CbID;
 
 /* 
     an abstract class for a collection of hooks with a fixed target function
@@ -48,7 +48,6 @@ typedef unsigned int CbID;
  */
 template <typename CbT, typename TargIDT, typename TargFuncT>
 class HookGroup {
-    /* begin declarations */
 protected:
     struct TargHookInfo;
     struct CbInfo;
@@ -59,17 +58,11 @@ protected:
     virtual TargFuncT GetGateway() = 0;
     virtual void* GetParamStorage() = 0;
 
-
-private:
     CbID nextID;
     std::map<TargIDT, TargHookInfo*> targetToInfo;
 
     std::vector<TargIDT> targets;
     std::vector<uintptr_t> targetAddrs;
-    /* end declarations */
-
-    /* begin implementations */
-protected:
     struct CbInfo {
         CbT callback;
         CbWhen when;
