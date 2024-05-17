@@ -51,7 +51,7 @@ public:
 
     static void  __fastcall HandleFastcallHook0_0();
     static void  __fastcall HandleFastcallHook1_0(void*);
-    static void  __fastcall HandleFastcallHook2_0(void*);
+    static void  __fastcall HandleFastcallHook2_0(void*, void*);
     static void* __fastcall HandleFastcallHook0_1();
     static void* __fastcall HandleFastcallHook1_1(void*);
     static void* __fastcall HandleFastcallHook2_1(void*, void*);

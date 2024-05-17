@@ -15,8 +15,6 @@ namespace Memory {
         BOOL hooked = false;
         BOOL initialized = false;
 
-        ~Hook();
-
         BOOL SetTarget(uintptr_t target);
         BOOL SetHook(uintptr_t hook);
         /* if set, will store the value of extraIn or value pointed by extraIn
@@ -32,6 +30,9 @@ namespace Memory {
            function ptr into out */
         BOOL Initialize(uintptr_t* out);
 
+        /* frees the underlying data. */
+        void Deinitialize();
+
         /* returns whether hook was successful. Initialize must be called
            before this. */
         BOOL Enable();
@@ -39,12 +40,15 @@ namespace Memory {
         /* returns whether undoing hook was successful */
         BOOL Disable();
 
+
     private:
         /* how many bytes did we overwrite */
         unsigned patchLen;
-        /* the bytes that have been/will be overwritten. */
+        /* the bytes that have been/will be overwritten.
+           TODO: use unique_ptr and malloc/free the data */
         std::vector<BYTE> orig;
-        /* set up the hook */
+        /* set up the hook
+           TODO: use unique_ptr and malloc/free the data */
         std::vector<BYTE> trampoline;
         /* the way we set this up, we'll still have a way to call the original
            function. */

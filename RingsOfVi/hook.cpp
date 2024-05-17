@@ -46,18 +46,18 @@ namespace Memory {
         }
     };
 
-    Hook::~Hook() { }
-
     BOOL Hook::SetTarget(uintptr_t target) {
         if (hooked) return false;
         this->target = target;
         initialized = false;
+        return true;
     }
 
     BOOL Hook::SetHook(uintptr_t hook) {
         if (hooked) return false;
         this->hook = hook;
         initialized = false;
+        return true;
     }
 
     void Hook::SetExtraIn(
@@ -143,6 +143,8 @@ namespace Memory {
         initialized = true;
         return true;
     }
+
+    void Deinitialize() { }
 
     BOOL Hook::Enable() {
         if (!initialized) return false;

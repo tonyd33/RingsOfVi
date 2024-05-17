@@ -82,8 +82,7 @@ protected:
     };
 
     TargIDT GWGetTarget() {
-        void* storage = GetParamStorage();
-        int index = *(int*)storage;
+        int index = *(int*)GetParamStorage();
 
         return targets[index];
     }

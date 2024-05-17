@@ -5,6 +5,7 @@
 #include "hook.h"
 #include "wrapped_types.h"
 #include "action_hooks.h"
+#include "general_hooks.h"
 
 bool DoSomething(CAction* action) {
     std::vector<CParameter> params = action->GetParams();
@@ -65,6 +66,9 @@ void ModThread(HMODULE hModule) {
     actHooks.PrepareHooks();
     //Hook::Actions::Initialize();
 
+    GeneralHooks& genHooks = GeneralHooks::Instance();
+    genHooks.PrepareHooks();
+
 
 
     CbID tmp;
@@ -85,7 +89,8 @@ void ModThread(HMODULE hModule) {
     while (1) {
         if (GetAsyncKeyState(VK_DELETE) & 1) break;
         if (GetAsyncKeyState(VK_END) & 1) {
-            actHooks.ToggleHook("SetX");
+            genHooks.ToggleHook("computeEventList");
+            // actHooks.ToggleHook("SetX");
             std::cout << "Toggled\n";
         }
         if (GetAsyncKeyState(VK_INSERT) & 1) {

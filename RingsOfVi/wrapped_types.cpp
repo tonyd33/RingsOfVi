@@ -25,7 +25,7 @@ CCondition::CCondition(Condition* condition) {
 
 std::vector<CParameter> CCondition::GetParams() {
     std::vector<CParameter> params;
-    Parameter* curr = (Parameter*)((char*)condition + sizeof(Condition));
+    Parameter* curr = (Parameter*)((uintptr_t)condition + sizeof(Condition));
 
     for (int i = 0; i < condition->numParams; i++) {
         CParameter cCurr = CParameter(curr);

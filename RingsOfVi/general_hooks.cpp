@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <iostream>
 #include "general_hooks.h"
 #include "game.h"
 
@@ -95,6 +96,7 @@ void GeneralHooks::PrepareHooks() {
 }
 
 void  __fastcall GeneralHooks::HandleFastcallHook0_0() {
+    std::cout << "shiiiet\n";
     GeneralHooks& ghs = GeneralHooks::Instance();
     auto targetInfo = ghs.GWGetTargHookInfo();
     auto thi = ghs.GWGetTargHookInfo();
@@ -102,8 +104,11 @@ void  __fastcall GeneralHooks::HandleFastcallHook0_0() {
 }
 
 void  __fastcall GeneralHooks::HandleFastcallHook1_0(void*) {
+    GeneralHooks& ghs = GeneralHooks::Instance();
+    auto targetInfo = ghs.GWGetTargHookInfo();
 }
-void  __fastcall GeneralHooks::HandleFastcallHook2_0(void*) {
+void  __fastcall GeneralHooks::HandleFastcallHook2_0(void*, void*) {
+    std::cout << "shiiiet\n";
 }
 void* __fastcall GeneralHooks::HandleFastcallHook0_1() {
     return 0;
