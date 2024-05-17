@@ -47,11 +47,6 @@ OrigActionFunc ActionHooks::GetGateway() {
     return HandleActionHook;
 }
 
-//ActionHooks& ActionHooks::Instance() {
-//	static ActionHooks instance;
-//	return instance;
-//}
-
 void ActionHooks::LoadHookAddrs() {
     LoadExtsTable();
 

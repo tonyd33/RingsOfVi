@@ -95,6 +95,7 @@ protected:
     /* child classes will use this to add a target. should be used in the
        */
     void AddTarget(TargIDT target, uintptr_t addr) {
+        // TODO: Check duplicate
         targets.push_back(target);
         targetAddrs.push_back(addr);
     }
@@ -182,3 +183,58 @@ public:
     /* end implementations */
 };
 
+
+/* yeah, this architecture has gone to complete shit. OOP can suck it.
+   this would make so much more sense in the functional paradigm with
+   currying. */
+template <typename CbT, typename TargFuncT>
+class SingleHook : public HookGroup<CbT, int, TargFuncT> {
+protected:
+    /* fight me. this is a perfectly sane define */
+    #define SINGLE_HOOK_ID 0
+
+    /* child classes will use this to add a target. should be used in the
+       */
+    void AddTarget(uintptr_t addr) {
+        // TODO: Check duplicate
+        this->targets.push_back(SINGLE_HOOK_ID);
+        this->targetAddrs.push_back(addr);
+    }
+public:
+    HStatus Subscribe(
+        CbT callback,
+        CbWhen when,
+        CbID* out
+    ) {
+        HookGroup::CbInfo callbackInfo;
+        callbackInfo.callback = callback;
+        callbackInfo.when = when;
+        callbackInfo.id = this->nextID++;
+        *out = callbackInfo.id;
+        callbackInfo.target = SINGLE_HOOK_ID;
+        this->targetToInfo[SINGLE_HOOK_ID]->callbacks.push_back(callbackInfo);
+        return H_OK;
+    }
+
+    HStatus EnableHook() {
+        // TODO: Error
+        this->targetToInfo[SINGLE_HOOK_ID]->hook->Enable();
+        return H_OK;
+    }
+
+    HStatus DisableHook() {
+        // TODO: Error
+        this->targetToInfo[SINGLE_HOOK_ID]->hook->Disable();
+        return H_OK;
+    }
+
+    HStatus ToggleHook() {
+        if (this->targetToInfo[SINGLE_HOOK_ID]->hook->hooked) {
+            this->targetToInfo[SINGLE_HOOK_ID]->hook->Disable();
+        } else {
+            this->targetToInfo[SINGLE_HOOK_ID]->hook->Enable();
+        }
+        // TODO: Error
+        return H_OK;
+    }
+};

@@ -64,11 +64,8 @@ void ModThread(HMODULE hModule) {
     Game::Initialize(modBaseAddr);
     ActionHooks& actHooks = ActionHooks::Instance();
     actHooks.PrepareHooks();
-    //Hook::Actions::Initialize();
-
-    GeneralHooks& genHooks = GeneralHooks::Instance();
-    genHooks.PrepareHooks();
-
+    ComputeEventListHook& ceh = ComputeEventListHook::Instance();
+    ceh.PrepareHooks();
 
 
     CbID tmp;
@@ -89,7 +86,7 @@ void ModThread(HMODULE hModule) {
     while (1) {
         if (GetAsyncKeyState(VK_DELETE) & 1) break;
         if (GetAsyncKeyState(VK_END) & 1) {
-            genHooks.ToggleHook("computeEventList");
+            ceh.ToggleHook();
             // actHooks.ToggleHook("SetX");
             std::cout << "Toggled\n";
         }
